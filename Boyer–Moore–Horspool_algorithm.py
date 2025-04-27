@@ -1,6 +1,9 @@
 import pandas as pd
 import time
 
+data = pd.read_csv('algorithm_results.csv')
+data['B-M-H'] = None
+
 def create_string(file_path):
     f = open(file_path, 'r', encoding='utf-8')
     text = f.read()
@@ -46,16 +49,14 @@ def find_pattern_in_text(pattern, text):
             j-=1
 
         if j == -1:
-            res = f'Первое вхождение подстроки: {i+1}'
-            return res
+            return f'Первое вхождение подстроки: {i+1}'
         elif i in symbol_value_dict:
             num = symbol_value_dict[i]
             i += num
         else:
             i+=pattern_len
 
-    res = 'Подстрока не найдена'
-    return
+    return 'Подстрока не найдена'
 
 print('============== Bad files ==============')
 for n in range(1, 5):
@@ -73,14 +74,19 @@ for n in range(1, 5):
 
     end = time.perf_counter()
 
+    time_res = f'{end - start:.6f}'
+    data.loc[data['benchmarks'] == f'bad {n}', 'B-M-H'] = time_res
+
     print()
     print(f'Bad #{n}')
     print(result)
-    print(f'Время выполнения: {end - start:.4f} секунд')
+    print(f'Время выполнения: {time_res} секунд')
 
 print()
 print('============== Good files =============')
 for n in range(1, 5):
+
+    start = time.perf_counter()
 
     pattern_path = f'benchmarks/good_w_{n}.txt'
     pattern = create_string(pattern_path)
@@ -93,7 +99,12 @@ for n in range(1, 5):
 
     end = time.perf_counter()
 
+    time_res = f'{end - start:.6f}'
+    data.loc[data['benchmarks'] == f'good {n}', 'B-M-H'] = time_res
+
     print()
     print(f'Good #{n}')
     print(result)
-    print(f'Время выполнения: {end - start:.4f} секунд')
+    print(f'Время выполнения: {time_res} секунд')
+
+data.to_csv('algorithm_results.csv', index=False)
